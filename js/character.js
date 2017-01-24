@@ -1,29 +1,23 @@
 var Character = Class.extend({
-    // Class constructor
     init: function(args) {
         'use strict';
 
         this.WALK_SPEED = 4;
         this.ROTATION_SPEED = 0.03;
 
-        // Set the different geometries composing the humanoid
         var head = new THREE.SphereGeometry(32, 16, 16),
                 hand = new THREE.SphereGeometry(8, 8, 8),
                 foot = new THREE.SphereGeometry(16, 4, 8, 0, Math.PI * 2, 0, Math.PI / 2),
                 nose = new THREE.SphereGeometry(4, 8, 8),
-                // Set the material, the "skin"
                 material = new THREE.MeshLambertMaterial(args);
 
-        // Set the character modelisation object
         this.mesh = new THREE.Object3D();
         this.mesh.position.y = 48;
 
-        // Set and add its head
         this.head = new THREE.Mesh(head, material);
         this.head.position.y = 0;
         this.mesh.add(this.head);
 
-        // Set and add its hands
         this.hands = {
             left: new THREE.Mesh(hand, material),
             right: new THREE.Mesh(hand, material)
@@ -36,7 +30,6 @@ var Character = Class.extend({
         this.mesh.add(this.hands.left);
         this.mesh.add(this.hands.right);
 
-        // Set and add its feet
         this.feet = {
             left: new THREE.Mesh(foot, material),
             right: new THREE.Mesh(foot, material)
@@ -51,7 +44,6 @@ var Character = Class.extend({
         this.mesh.add(this.feet.left);
         this.mesh.add(this.feet.right);
 
-        // Set and add its nose
         this.nose = new THREE.Mesh(nose, material);
         this.nose.position.y = 0;
         this.nose.position.z = 32;
@@ -64,16 +56,12 @@ var Character = Class.extend({
         // the user isn't allowed to take the next step
         this.dummyMesh = new THREE.Object3D();
 
-        // Set the vector of the current motion
         this.direction = new THREE.Vector3(0, 0, 0);
 
-        // Set the current animation step
         this.step = 0;
 
-        // And the "RayCaster", able to test for intersections
         this.caster = new THREE.Raycaster();
     },
-    // Update the direction of the current motion
     setDirection: function(controls) {
         'use strict';
 
@@ -84,26 +72,20 @@ var Character = Class.extend({
 
         this.direction.set(x, y, z);
     },
-    // Process the character motions
     motion: function() {
         'use strict';
 
-        // Update the directions if we intersect with an obstacle
         var freeToMove = this.collision();
 
-        // If we're not static
         if (this.controls.up || this.controls.down || this.controls.left || this.controls.right) {
 
-            // Rotate the character
             this.rotate();
 
-            // Move the character
             if (freeToMove) {
                 this.move();
             }
         }
     },
-    // Test and avoid collisions
     collision: function() {
         'use strict';
 
@@ -140,7 +122,6 @@ var Character = Class.extend({
             return true;
         }
     },
-    // Rotate the character
     rotate: function() {
         'use strict';
 
@@ -159,10 +140,8 @@ var Character = Class.extend({
             this.mesh.translateZ(-this.WALK_SPEED);
         }
 
-        // Now some animation trigonometry, using our "step" property ...
         this.step += 0.25;
 
-        // ... to slightly move our feet and hands
         this.feet.left.position.setZ(Math.sin(this.step) * 16);
         this.feet.right.position.setZ(Math.cos(this.step + (Math.PI / 2)) * 16);
         this.hands.left.position.setZ(Math.cos(this.step + (Math.PI / 2)) * 8);
